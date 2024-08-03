@@ -3,27 +3,32 @@ import ast
 from flask import Flask, request
 
 app = Flask(__name__)
-metrics_path = os.environ['METRICS_PATH']
+METRICS_PATH = os.environ['METRICS_PATH']
+API_KEY = os.environ['X_API_KEY']
 
 @app.route("/metrics", methods=['GET'])
 def get_metrics():
-    #try:    
-    quantity = int(request.args.get('quantity'))
-    if quantity <= 0:
-        return 'quantity must be greater than 0', 400
+    try:
+        received_api_key = request.headers.get('X-Api-Key')
+        if received_api_key != API_KEY:
+            return {'error': 'unauthorized'}, 401
 
-    if not os.path.exists(metrics_path):
-        return [], 200
+        quantity = int(request.args.get('quantity'))
+        if quantity <= 0:
+            return {'message': 'quantity must be greater than 0'}, 400
 
-    metrics = []
-    for line in reversed(open(metrics_path).readlines()):
-        if len(metrics) == quantity:
-            break
+        if not os.path.exists(METRICS_PATH):
+            return {'metrics': []}, 200
 
-        as_dict = ast.literal_eval(line.rstrip())
-        metrics.append(as_dict)
-    
-    return metrics, 200
+        metrics = []
+        for line in reversed(open(METRICS_PATH).readlines()):
+            if len(metrics) == quantity:
+                break
 
-    #except:
-    #    return 'internal server error', 500
+            as_dict = ast.literal_eval(line.rstrip())
+            metrics.append(as_dict)
+        
+        return {'metrics': metrics}, 200
+
+    except:
+        return {'error': 'internal server error'}, 500
