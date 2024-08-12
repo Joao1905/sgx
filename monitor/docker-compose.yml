@@ -1,0 +1,22 @@
+services:
+
+  _build:
+    image: ubuntu-python
+    pull_policy: never
+    command: ['echo', 'build completed']
+    build: 
+      context: .
+      dockerfile: dockerfile
+
+  monitor:
+    image: ubuntu-python
+    pull_policy: never
+    depends_on:
+      - _build
+    env_file: 'docker.env'
+    command: >
+      sh -c "python3 /sgx/monitor/workers/agent.py &
+             flask --app /sgx/monitor/workers/api.py run --host=0.0.0.0"
+    pid: "host"
+    ports:
+      - "8000:5000"
