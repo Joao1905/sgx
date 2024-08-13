@@ -1,0 +1,14 @@
+FROM ubuntu
+COPY requirements.txt /sgx/manager/requirements.txt
+
+RUN apt-get update
+RUN apt-get -y install curl
+
+RUN apt-get -y install python3
+RUN apt install -y python3-pip
+
+RUN cd /sgx/manager
+RUN pip3 install -r /sgx/manager/requirements.txt --break-system-packages
+
+COPY . /sgx/manager
+EXPOSE 5000
