@@ -3,8 +3,8 @@ import ast
 from flask import Flask, request
 
 app = Flask(__name__)
-METRICS_PATH = os.environ['METRICS_PATH']
-API_KEY = os.environ['X_API_KEY']
+METRICS_PATH = os.getenv('METRICS_PATH')
+API_KEY = os.getenv('X_API_KEY')
 
 @app.route("/metrics", methods=['GET'])
 def get_metrics():

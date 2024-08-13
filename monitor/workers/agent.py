@@ -7,12 +7,18 @@ sys.path.append(os.path.join(executing_dir, '..'))
 from models.agent import Agent
 
 def main():
-    metrics_path = os.environ['METRICS_PATH']
-    
-    if os.path.exists(metrics_path):
+    metrics_path = os.getenv('METRICS_PATH')
+
+    if metrics_path and os.path.exists(metrics_path):
         os.remove(metrics_path)
+    
+    monitor_delay_secs = os.getenv('MONITOR_DELAY_SECS')
+    collect_interval_secs = os.getenv('COLLECT_INTERVAL_SECS')
 
     agent = Agent(metrics_file_path=metrics_path)
+    if monitor_delay_secs and collect_interval_secs:
+        agent = Agent(monitor_delay_secs, collect_interval_secs, metrics_file_path=metrics_path)
+    
     agent.start()
 
 main()
