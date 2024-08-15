@@ -5,8 +5,8 @@ executing_dir, _ = os.path.split(os.path.abspath(__file__))
 sys.path.append(os.path.join(executing_dir, '..'))
 
 from errors.errors import EnvVariableMissing
-from models.manager import Manager
-from services.redis import RedisClient
+from services.manager import Manager
+from repositories.redis import RedisClient
 
 def main():
     metricts_quantity = os.getenv('METRICS_QUANTITY')
@@ -32,4 +32,3 @@ def main():
     manager.start()
 
 main()
-# TODO migrate models to services

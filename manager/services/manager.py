@@ -1,8 +1,14 @@
+import os
+import sys
 import threading
 import requests
 import json
 from ast import literal_eval
 
+executing_dir, _ = os.path.split(os.path.abspath(__file__))
+sys.path.append(os.path.join(executing_dir, '..'))
+
+from models.metric import MetricRegister
 
 class Manager:
     __is_running = False
@@ -38,14 +44,17 @@ class Manager:
         self.start()
 
         for target_machine in self.__api_metadata:
-            # TODO try catch and error handling
-            response = requests.get(target_machine['url'], headers=target_machine['headers'])
-            
-            if response.status_code != 200:
-                return
-            
-            metrics_dict = json.loads(response.content)
-
-            for metric in metrics_dict['metrics']:
-                self.__redis.upsert_metric(metric) # TODO maybe create a metric model here as well
+            try:
+                response = requests.get(target_machine['url'], headers=target_machine['headers'])
                 
+                if response.status_code != 200:
+                    return
+                
+                all_metrics = json.loads(response.content)
+
+                for metric_dict in all_metrics['metrics']:
+                    metric = MetricRegister(metric_dict)
+                    self.__redis.upsert_metric(metric)
+
+            except Exception as e:
+                print("warn: unable upsert metric for host ", target_machine['url'], ". error: ", e)

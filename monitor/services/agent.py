@@ -1,7 +1,11 @@
 import threading
 import psutil
 import os
+import sys
 import uuid
+
+executing_dir, _ = os.path.split(os.path.abspath(__file__))
+sys.path.append(os.path.join(executing_dir, '..'))
 
 from models.metric import Metric
 from errors.errors import InsufficientDelay
@@ -9,7 +13,7 @@ from errors.errors import InsufficientDelay
 class Agent:
     __is_running = False
 
-    def __init__(self, monitor_delay_secs = 10, collect_interval_secs = 3, metrics_file_path = False):
+    def __init__(self, agent_id, monitor_delay_secs = 10, collect_interval_secs = 3, metrics_file_path = False):
         self.__cpu_collect_interval = int(collect_interval_secs)
         self.__monitor_delay_secs = int(monitor_delay_secs)
 
@@ -22,7 +26,7 @@ class Agent:
             executing_dir, _ = os.path.split(os.path.abspath(__file__))
             self.__metrics_file_path = os.path.join(executing_dir, '..', 'metrics.txt')
 
-        self.__agent_id = str(uuid.uuid4())
+        self.__agent_id = str(agent_id)
         
 
     def get_metrics_file_path(self):

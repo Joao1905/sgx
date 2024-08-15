@@ -1,6 +1,9 @@
 import os
+import sys
 import redis
-import json
+
+executing_dir, _ = os.path.split(os.path.abspath(__file__))
+sys.path.append(os.path.join(executing_dir, '..'))
 
 from errors.errors import EnvVariableMissing
 
@@ -26,8 +29,10 @@ class RedisClient:
         self.__client.flushdb()
 
     def upsert_metric(self, metric):
-        stringfied_metric = json.dumps(metric)
-        self.__client.set(metric['id'], stringfied_metric)
+        self.__client.set(metric.get_id(), metric.get_register())
 
     def get_metric(self, metric_id):
         return self.__client.get(metric_id)
+    
+    def get_all_metrics(self):
+        return self.__client.keys()

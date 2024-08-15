@@ -3,7 +3,7 @@ services:
   redis:
     image: redis:latest
     container_name: redis_distributed
-    env_file: 'docker.env'
+    env_file: '.env'
     restart: always
     ports:
       - '${REDIS_PORT}:6379'
@@ -12,19 +12,20 @@ services:
       - data-volume:/data
 
   _build:
-    image: ubuntu-python-redis
+    image: ubuntu-python-manager
     pull_policy: never
     command: ['echo', 'build completed']
     build: 
       context: .
       dockerfile: dockerfile
+      no_cache: true
 
-  monitor:
-    image: ubuntu-python-redis
+  manager:
+    image: ubuntu-python-manager
     pull_policy: never
     depends_on:
       - _build
-    env_file: 'docker.env'
+    env_file: '.env'
     command: >
       sh -c "python3 /sgx/manager/workers/manager.py &
              flask --app /sgx/manager/workers/api.py run --host=0.0.0.0"

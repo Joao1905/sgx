@@ -1,10 +1,9 @@
 import sys
 import os
+import uuid
 
 executing_dir, _ = os.path.split(os.path.abspath(__file__))
 sys.path.append(os.path.join(executing_dir, '..'))
-
-import uuid
 
 from utils.utils import current_ISO_datetime
 
