@@ -20,9 +20,9 @@ def main():
     monitor_delay_secs = os.getenv('MONITOR_DELAY_SECS')
     collect_interval_secs = os.getenv('COLLECT_INTERVAL_SECS')
 
-    agent = Agent(metrics_file_path=metrics_path)
+    agent = Agent(agent_id, metrics_file_path=metrics_path)
     if monitor_delay_secs and collect_interval_secs:
-        agent = Agent(monitor_delay_secs, collect_interval_secs, metrics_file_path=metrics_path)
+        agent = Agent(agent_id, monitor_delay_secs, collect_interval_secs, metrics_file_path=metrics_path)
     
     agent.start()
 
