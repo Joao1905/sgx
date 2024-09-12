@@ -1,16 +1,15 @@
 services:
 
   _build:
-    image: ubuntu-python-monitor
+    image: scone-python-monitor
     pull_policy: never
     command: ['echo', 'build completed']
     build: 
       context: .
       dockerfile: dockerfile
-      no_cache: true
 
   monitor:
-    image: ubuntu-python-monitor
+    image: scone-python-monitor
     pull_policy: never
     depends_on:
       - _build
@@ -19,5 +18,9 @@ services:
       sh -c "python3 /sgx/monitor/workers/agent.py &
              flask --app /sgx/monitor/workers/api.py run --host=0.0.0.0"
     pid: "host"
+    volumes:
+      - /proc/meminfo:/host/proc/meminfo:ro
     ports:
       - "8000:5000"
+    devices:
+      - "/dev/isgx:/dev/isgx"
