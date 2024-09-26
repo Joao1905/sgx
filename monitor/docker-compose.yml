@@ -1,26 +1,39 @@
 services:
 
-  _build:
-    image: scone-python-monitor
+  _encrypt:
+    image: registry.scontain.com/sconecuratedimages/crosscompilers
     pull_policy: never
-    command: ['echo', 'build completed']
-    build: 
-      context: .
-      dockerfile: dockerfile
-
-  monitor:
-    image: scone-python-monitor
-    pull_policy: never
-    depends_on:
-      - _build
-    env_file: '.env'
-    command: >
-      sh -c "python3 /sgx/monitor/workers/agent.py &
-             flask --app /sgx/monitor/workers/api.py run --host=0.0.0.0"
-    pid: "host"
+    working_dir: /sgx/monitor
     volumes:
-      - /proc/meminfo:/host/proc/meminfo:ro
-    ports:
-      - "8000:5000"
-    devices:
-      - "/dev/isgx:/dev/isgx"
+        - /sgx:/sgx
+        - ./:/hostapp
+    command: /bin/sh -c /hostapp/encrypt.sh
+
+
+  #_build:
+  #  image: scone-python-monitor
+  #  pull_policy: never
+  #  depends_on:
+  #    - _encrypt
+  #  command: ['echo', 'build completed']
+  #  build: 
+  #    context: .
+  #    dockerfile: dockerfile
+
+
+  #monitor:
+  #  image: scone-python-monitor
+  #  pull_policy: never
+  #  depends_on:
+  #    - _build
+  #  env_file: '.env'
+  #  command: >
+  #    sh -c "python3 /sgx/monitor/workers/agent.py &
+  #           flask --app /sgx/monitor/workers/api.py run --host=0.0.0.0"
+  #  pid: "host"
+  #  volumes:
+  #    - /proc/meminfo:/host/proc/meminfo:ro
+  #  ports:
+  #    - "8000:5000"
+  #  devices:
+  #    - "/dev/isgx:/dev/isgx"
