@@ -11,7 +11,6 @@ RUN pip3 install --upgrade pip
 
 RUN pip3 install -r /sgx/monitor/requirements.txt --break-system-packages
 
-COPY artifacts/encrypted /sgx/monitor
-COPY artifacts/fspf/fspf.pb /fspf/fspf.pb
+COPY artifacts/original /sgx/monitor
 
 EXPOSE 5000

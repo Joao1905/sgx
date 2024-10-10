@@ -27,10 +27,14 @@ PROJECT_ROOT_DIR=$( dirname -- "$( readlink -f -- "$0"; )"; )/..
 ORIGINAL_APP_DIR=$PROJECT_ROOT_DIR/artifacts/original
 HOST_APP_ENCRYPTED_DIR=$PROJECT_ROOT_DIR/artifacts/encrypted
 HOST_FSPF_DIR=$PROJECT_ROOT_DIR/artifacts/fspf
+HOST_METRICS_DIR=$PROJECT_ROOT_DIR/artifacts/metrics/
 
 rm -rf $PROJECT_ROOT_DIR/artifacts
 mkdir -p $ORIGINAL_APP_DIR
 mkdir -p $ORIGINAL_APP_DIR/scripts/
+
+mkdir -p $HOST_METRICS_DIR
+touch $HOST_METRICS_DIR/metrics.txt
 
 cp -R $PROJECT_ROOT_DIR/errors $ORIGINAL_APP_DIR/errors
 cp -R $PROJECT_ROOT_DIR/models $ORIGINAL_APP_DIR/models
@@ -44,6 +48,7 @@ docker run -it --rm \
     $MOUNT_SGXDEVICE -e "SCONE_MODE=$SCONE_MODE" \
     -v "$ORIGINAL_APP_DIR:/original" \
     -v "$HOST_APP_ENCRYPTED_DIR:/sgx/monitor" \
+    -v "$HOST_METRICS_DIR:/metrics" \
     -v "$HOST_FSPF_DIR:/fspf" \
     "$CROSSCOMPILER_SCONE_IMAGE" \
     "/original/scripts/encrypt.sh"
@@ -62,6 +67,22 @@ docker run -it --rm \
     -e "SCONE_FSPF=/fspf/fspf.pb" \
     --pid host \
     -v /proc/meminfo:/host/proc/meminfo:ro \
-    -p 8000:5000 \
+    -v "$HOST_METRICS_DIR:/metrics" \
+    --detach \
     scone-python-monitor \
-    sh -c "python3 /sgx/monitor/workers/agent.py & python3 -m flask --app /sgx/monitor/workers/api.py run --host=0.0.0.0"
+    sh -c "python3 /sgx/monitor/workers/agent.py"
+
+
+
+
+docker build "$PROJECT_ROOT_DIR" \
+    -f ../dockerfile-api \
+    -t "scone-python-monitor-api"
+
+docker run -it --rm \
+    $MOUNT_SGXDEVICE -e "SCONE_MODE=$SCONE_MODE" \
+    --env-file $PROJECT_ROOT_DIR/.env \
+    -v "$HOST_METRICS_DIR:/metrics" \
+    -p 8000:5000 \
+    scone-python-monitor-api \
+    sh -c "python3 -m flask --app /sgx/monitor/workers/api.py run --host=0.0.0.0"

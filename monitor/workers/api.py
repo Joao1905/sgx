@@ -18,15 +18,18 @@ def get_metrics():
             return {'message': 'quantity must be greater than 0'}, 400
 
         if not os.path.exists(METRICS_PATH):
-            return {'metrics': []}, 200
+            return {'metrics': []}, 204
 
         metrics = []
-        for line in reversed(open(METRICS_PATH).readlines()):
+        file = open(METRICS_PATH)
+        for line in reversed(file.readlines()):
             if len(metrics) == quantity:
                 break
 
             as_dict = ast.literal_eval(line.rstrip())
             metrics.append(as_dict)
+        
+        file.close()
         
         return {'metrics': metrics}, 200
 
