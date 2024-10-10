@@ -6,12 +6,14 @@ RUN apk update
 RUN apk add curl
 RUN apk add gcc python3-dev musl-dev linux-headers
 
-# RUN apt-get -y install python3
 RUN apk add py3-pip
 RUN pip3 install --upgrade pip
 
-RUN cd /sgx/monitor
 RUN pip3 install -r /sgx/monitor/requirements.txt --break-system-packages
 
-COPY . /sgx/monitor
+COPY artifacts/encrypted /sgx/monitor
+COPY artifacts/fspf/fspf.pb /fspf/fspf.pb
+
+RUN mkdir /metrics
+
 EXPOSE 5000

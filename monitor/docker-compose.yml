@@ -1,13 +1,13 @@
 services:
 
-  _encrypt:
-    image: registry.scontain.com/sconecuratedimages/crosscompilers
-    pull_policy: never
-    working_dir: /sgx/monitor
-    volumes:
-        - /sgx:/sgx
-        - ./:/hostapp
-    command: /bin/sh -c /hostapp/encrypt.sh
+  #_encrypt:
+  #  image: registry.scontain.com/sconecuratedimages/crosscompilers
+  #  pull_policy: never
+  #  working_dir: /sgx/monitor
+  #  volumes:
+  #      - /sgx:/sgx
+  #      - ./:/hostapp
+  #  command: /bin/sh -c /hostapp/encrypt.sh
 
 
   #_build:

@@ -20,8 +20,7 @@ class Agent:
 
         self.__metrics_file_path = metrics_file_path
         if not metrics_file_path:
-            executing_dir, _ = os.path.split(os.path.abspath(__file__))
-            self.__metrics_file_path = os.path.join(executing_dir, '..', 'metrics.txt')
+            self.__metrics_file_path = os.path.join('/metrics', 'metrics.txt')
 
         self.__agent_id = str(agent_id)
         
