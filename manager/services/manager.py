@@ -57,4 +57,4 @@ class Manager:
                     self.__redis.upsert_metric(metric)
 
             except Exception as e:
-                print("warn: unable upsert metric for host ", target_machine['url'], ". error: ", e)
+                print("warn: unable to upsert metric for host ", target_machine['url'], ". error: ", e)

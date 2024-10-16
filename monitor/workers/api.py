@@ -1,6 +1,8 @@
 import os
 import ast
 from flask import Flask, request
+from cryptography.fernet import Fernet
+
 
 app = Flask(__name__)
 METRICS_PATH = os.getenv('METRICS_PATH')
@@ -17,16 +19,22 @@ def get_metrics():
         if quantity <= 0:
             return {'message': 'quantity must be greater than 0'}, 400
 
+        fernet_key = os.getenv('METRICS_FILE_ENCRYPTION_KEY')
+        if not fernet_key:
+            return {'message': 'API configuration variable is missing'}, 500
+
         if not os.path.exists(METRICS_PATH):
             return {'metrics': []}, 204
 
         metrics = []
         file = open(METRICS_PATH)
+        fernet = Fernet(fernet_key)
         for line in reversed(file.readlines()):
             if len(metrics) == quantity:
                 break
 
-            as_dict = ast.literal_eval(line.rstrip())
+            message = fernet.decrypt(ast.literal_eval(line)).decode()
+            as_dict = ast.literal_eval(message.rstrip())
             metrics.append(as_dict)
         
         file.close()

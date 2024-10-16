@@ -20,6 +20,9 @@ if [[ ! -e "$SGXDEVICE" ]] ; then
     fi
 fi
 
+
+
+# Set docker images, artifacts and environment variables related to filesystem
 CROSSCOMPILER_SCONE_IMAGE=registry.scontain.com/sconecuratedimages/crosscompilers
 PYTHON_SCONE_IMAGE=registry.scontain.com/sconecuratedimages/apps:python-3.7.3-alpine3.10-scone5.9.0
 
@@ -44,6 +47,9 @@ cp -R $PROJECT_ROOT_DIR/workers $ORIGINAL_APP_DIR/workers
 cp $PROJECT_ROOT_DIR/scripts/encrypt.sh $ORIGINAL_APP_DIR/scripts/encrypt.sh
 cp $PROJECT_ROOT_DIR/requirements.txt $ORIGINAL_APP_DIR
 
+
+
+# Generate fspf table to configure filesystem and code encryption with SCONE shields
 docker run -it --rm \
     $MOUNT_SGXDEVICE -e "SCONE_MODE=$SCONE_MODE" \
     -v "$ORIGINAL_APP_DIR:/original" \
@@ -56,6 +62,13 @@ docker run -it --rm \
 export SCONE_FSPF_KEY=$(cat "$HOST_FSPF_DIR/keytag.out" | awk '{print $11}')
 export SCONE_FSPF_TAG=$(cat "$HOST_FSPF_DIR/keytag.out" | awk '{print $9}')
 
+
+
+# Create symmetric encryption key for the metrics file
+METRICS_FILE_ENCRYPTION_KEY=$(python3 -c 'from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())')
+
+
+# Build and run monitor agent
 docker build "$PROJECT_ROOT_DIR" \
     -t "scone-python-monitor"
 
@@ -65,6 +78,7 @@ docker run -it --rm \
     -e "SCONE_FSPF_KEY=$SCONE_FSPF_KEY" \
     -e "SCONE_FSPF_TAG=$SCONE_FSPF_TAG" \
     -e "SCONE_FSPF=/fspf/fspf.pb" \
+    -e "METRICS_FILE_ENCRYPTION_KEY=$METRICS_FILE_ENCRYPTION_KEY" \
     --pid host \
     -v /proc/meminfo:/host/proc/meminfo:ro \
     -v "$HOST_METRICS_DIR:/metrics" \
@@ -74,7 +88,7 @@ docker run -it --rm \
 
 
 
-
+# Build and run monitor API
 docker build "$PROJECT_ROOT_DIR" \
     -f ../dockerfile-api \
     -t "scone-python-monitor-api"
@@ -82,6 +96,7 @@ docker build "$PROJECT_ROOT_DIR" \
 docker run -it --rm \
     $MOUNT_SGXDEVICE -e "SCONE_MODE=$SCONE_MODE" \
     --env-file $PROJECT_ROOT_DIR/.env \
+    -e "METRICS_FILE_ENCRYPTION_KEY=$METRICS_FILE_ENCRYPTION_KEY" \
     -v "$HOST_METRICS_DIR:/metrics" \
     -p 8000:5000 \
     scone-python-monitor-api \

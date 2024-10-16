@@ -2,7 +2,8 @@ import psutil
 import os
 import sys
 import time
-import threading
+from cryptography.fernet import Fernet
+
 
 executing_dir, _ = os.path.split(os.path.abspath(__file__))
 sys.path.append(os.path.join(executing_dir, '..'))
@@ -11,7 +12,7 @@ from models.metric import Metric
 from errors.errors import InsufficientDelay
 
 class Agent:
-    def __init__(self, agent_id, monitor_delay_secs = 10, metrics_file_path = False):
+    def __init__(self, agent_id, fernet_key, monitor_delay_secs = 10, metrics_file_path = False):
         self.__monitor_delay_secs = int(monitor_delay_secs)
 
         insufficient_time_delay = self.__monitor_delay_secs < 1
@@ -23,10 +24,7 @@ class Agent:
             self.__metrics_file_path = os.path.join('/metrics', 'metrics.txt')
 
         self.__agent_id = str(agent_id)
-        
-
-    def get_metrics_file_path(self):
-        return self.__persist_path
+        self.__fernet = Fernet(fernet_key)
 
 
     def start(self):
@@ -40,8 +38,10 @@ class Agent:
         cpu_usage_percent = psutil.cpu_percent(interval=None)
         mem_usage_gb = self.__get_memory_info()
         metric = Metric(self.__agent_id, cpu_usage_percent, mem_usage_gb)
+        token = self.__fernet.encrypt(bytes(metric.to_output(), "utf-8"))
+
         with open(self.__metrics_file_path, "a+") as metrics_file:
-            metrics_file.write(metric.to_output() + '\n')
+            metrics_file.write(str(token)+ '\n')
 
 
     def __get_memory_info(self):

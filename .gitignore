@@ -163,3 +163,4 @@ cython_debug/
 */metrics.txt
 
 monitor/artifacts
+test/*
