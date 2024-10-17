@@ -1,0 +1,35 @@
+name: $SCONE_CONFIG_ID
+version: "0.3.11"
+
+services:
+  - name: monitor_service
+    image_name: python_monitor
+    command: python3 /sgx/monitor/workers/agent.py
+    mrenclaves: [$MRENCLAVE]
+    fspf_path: /fspf/fspf.pb
+    fspf_key: $FSPF_KEY
+    fspf_tag: $FSPF_TAG
+    environment:
+      AGENT_ID: $AGENT_ID
+      MONITOR_DELAY_SECS: $MONITOR_DELAY_SECS
+      METRICS_PATH: $METRICS_PATH
+      X_API_KEY: $X_API_KEY
+      METRICS_FILE_ENCRYPTION_KEY: $METRICS_FILE_ENCRYPTION_KEY
+
+images:
+  - name: python_monitor
+
+security:
+  attestation:
+    tolerate:
+      [
+        debug-mode,
+        hyperthreading,
+        outdated-tcb,
+        insecure-igpu,
+        software-hardening-needed,
+        insecure-configuration,
+        local-attestation-trust-cas-tcb
+      ]
+    ignore_advisories: "*"
+    trusted_scone_qe_pubkeys: ["$CAS_MRENCLAVE"]
