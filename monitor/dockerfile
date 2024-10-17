@@ -4,7 +4,9 @@ COPY requirements.txt /sgx/monitor/requirements.txt
 
 RUN apk update
 RUN apk add curl
-RUN apk add gcc python3-dev musl-dev linux-headers
+RUN apk add --no-cache gcc python3-dev musl-dev linux-headers libffi-dev openssl-dev pkgconfig
+
+ENV CRYPTOGRAPHY_DONT_BUILD_RUST=1
 
 RUN apk add py3-pip
 RUN pip3 install --upgrade pip

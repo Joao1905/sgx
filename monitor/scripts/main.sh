@@ -35,9 +35,7 @@ HOST_METRICS_DIR=$PROJECT_ROOT_DIR/artifacts/metrics/
 rm -rf $PROJECT_ROOT_DIR/artifacts
 mkdir -p $ORIGINAL_APP_DIR
 mkdir -p $ORIGINAL_APP_DIR/scripts/
-
 mkdir -p $HOST_METRICS_DIR
-touch $HOST_METRICS_DIR/metrics.txt
 
 cp -R $PROJECT_ROOT_DIR/errors $ORIGINAL_APP_DIR/errors
 cp -R $PROJECT_ROOT_DIR/models $ORIGINAL_APP_DIR/models
@@ -87,17 +85,14 @@ docker run -it --rm \
     sh -c "python3 /sgx/monitor/workers/agent.py"
 
 
-
-# Build and run monitor API
-docker build "$PROJECT_ROOT_DIR" \
-    -f ../dockerfile-api \
-    -t "scone-python-monitor-api"
-
 docker run -it --rm \
     $MOUNT_SGXDEVICE -e "SCONE_MODE=$SCONE_MODE" \
     --env-file $PROJECT_ROOT_DIR/.env \
+    -e "SCONE_FSPF_KEY=$SCONE_FSPF_KEY" \
+    -e "SCONE_FSPF_TAG=$SCONE_FSPF_TAG" \
+    -e "SCONE_FSPF=/fspf/fspf.pb" \
     -e "METRICS_FILE_ENCRYPTION_KEY=$METRICS_FILE_ENCRYPTION_KEY" \
     -v "$HOST_METRICS_DIR:/metrics" \
     -p 8000:5000 \
-    scone-python-monitor-api \
+    scone-python-monitor \
     sh -c "python3 -m flask --app /sgx/monitor/workers/api.py run --host=0.0.0.0"
