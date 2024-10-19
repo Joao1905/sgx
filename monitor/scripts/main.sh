@@ -63,6 +63,12 @@ cp $PROJECT_ROOT_DIR/scripts/cas-session.sh $HOST_SCRIPTS_DIR/cas-session.sh
 cp $PROJECT_ROOT_DIR/scripts/cas-cert.conf $HOST_SCRIPTS_DIR/cas-cert.conf
 cp $PROJECT_ROOT_DIR/scripts/cas-template.yml $HOST_SCRIPTS_DIR/cas-template.yml
 
+
+
+# TODO call script to generate tls certificates
+
+
+
 # Generate fspf table to configure filesystem and code encryption with SCONE shields
 docker run -it --rm \
     $MOUNT_SGXDEVICE -e "SCONE_MODE=$SCONE_MODE" \
@@ -87,7 +93,8 @@ METRICS_FILE_ENCRYPTION_KEY=$(python3 -c 'from cryptography.fernet import Fernet
 openssl req -newkey rsa:4096 -days 365 -nodes -x509 \
     -out "$HOST_CAS_SESSION_DIR/cas-cert.pem" \
     -keyout "$HOST_CAS_SESSION_DIR/cas-key.pem" \
-    -config "$HOST_SCRIPTS_DIR/cas-cert.conf"
+    -config "$HOST_SCRIPTS_DIR/cas-cert.conf" \
+    -extensions v3_req
 
 docker run -it --rm \
     $MOUNT_SGXDEVICE -e "SCONE_MODE=$SCONE_MODE" \
