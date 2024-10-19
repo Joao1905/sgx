@@ -55,6 +55,7 @@ cp -R $PROJECT_ROOT_DIR/models $ORIGINAL_APP_DIR/models
 cp -R $PROJECT_ROOT_DIR/services $ORIGINAL_APP_DIR/services
 cp -R $PROJECT_ROOT_DIR/utils $ORIGINAL_APP_DIR/utils
 cp -R $PROJECT_ROOT_DIR/workers $ORIGINAL_APP_DIR/workers
+cp -R $PROJECT_ROOT_DIR/certificate $ORIGINAL_APP_DIR/certificate
 cp $PROJECT_ROOT_DIR/requirements.txt $ORIGINAL_APP_DIR
 
 cp $PROJECT_ROOT_DIR/scripts/encrypt.sh $HOST_SCRIPTS_DIR/encrypt.sh
@@ -161,4 +162,4 @@ docker run -it --rm \
 #    -v "$HOST_METRICS_DIR:/metrics" \
 #    -p 8000:5000 \
 #    scone-python-monitor \
-#    python3 -m flask --app /sgx/monitor/workers/api.py run --host=0.0.0.0
+#    python3 /sgx/monitor/workers/api.py

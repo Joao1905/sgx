@@ -1,45 +1,19 @@
+import sys
 import os
-import ast
-from flask import Flask, request
-from cryptography.fernet import Fernet
+import flask
+
+executing_dir, _ = os.path.split(os.path.abspath(__file__))
+sys.path.append(os.path.join(executing_dir, '..'))
+
+from services.routes import blueprint
 
 
-app = Flask(__name__)
-METRICS_PATH = os.getenv('METRICS_PATH')
-API_KEY = os.getenv('X_API_KEY')
+MONITOR_API_PORT = os.getenv('MONITOR_API_LOCAL_PORT')
+server = flask.Flask(__name__)
+server.register_blueprint(blueprint)
 
-@app.route("/metrics", methods=['GET'])
-def get_metrics():
-    try:
-        received_api_key = request.headers.get('X-Api-Key')
-        if received_api_key != API_KEY:
-            return {'error': 'unauthorized'}, 401
+if __name__ == "__main__":
+    certificate_path = os.path.join(executing_dir, "..", "certificate", "monitor-api-cert.pem")
+    key_path = os.path.join(executing_dir, "..", "certificate", "monitor-api-key.pem")
 
-        quantity = int(request.args.get('quantity'))
-        if quantity <= 0:
-            return {'message': 'quantity must be greater than 0'}, 400
-
-        fernet_key = os.getenv('METRICS_FILE_ENCRYPTION_KEY')
-        if not fernet_key:
-            return {'message': 'API configuration variable is missing'}, 500
-
-        if not os.path.exists(METRICS_PATH):
-            return {'metrics': []}, 204
-
-        metrics = []
-        file = open(METRICS_PATH)
-        fernet = Fernet(fernet_key)
-        for line in reversed(file.readlines()):
-            if len(metrics) == quantity:
-                break
-
-            message = fernet.decrypt(ast.literal_eval(line)).decode()
-            as_dict = ast.literal_eval(message.rstrip())
-            metrics.append(as_dict)
-        
-        file.close()
-        
-        return {'metrics': metrics}, 200
-
-    except:
-        return {'error': 'internal server error'}, 500
+    server.run(host="0.0.0.0", port=MONITOR_API_PORT, ssl_context=(certificate_path, key_path))

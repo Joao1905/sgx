@@ -163,4 +163,12 @@ cython_debug/
 */metrics.txt
 
 monitor/artifacts
+monitor/certificate/*.csr
+monitor/certificate/*.pem
+monitor/certificate/*.srl
+
+manager/certificate/*.csr
+manager/certificate/*.pem
+manager/certificate/*.srl
+
 test/*

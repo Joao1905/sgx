@@ -45,7 +45,7 @@ class Manager:
 
         for target_machine in self.__api_metadata:
             try:
-                response = requests.get(target_machine['url'], headers=target_machine['headers'])
+                response = requests.get(target_machine['url'], headers=target_machine['headers'], verify=executing_dir+'/../certificate/monitor-ca-cert.pem')
                 
                 if response.status_code != 200:
                     return

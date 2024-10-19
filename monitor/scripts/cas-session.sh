@@ -21,6 +21,7 @@ export MRENCLAVE=$(SCONE_HASH=1 python3)
 [ -z "${MONITOR_DELAY_SECS}" ] && MONITOR_DELAY_SECS=10
 [ -z "${METRICS_PATH}" ] && METRICS_PATH=/metrics/metrics.txt
 [ -z "${X_API_KEY}" ] && X_API_KEY=defaultkey
+[ -z "${MONITOR_API_LOCAL_PORT}" ] && MONITOR_API_LOCAL_PORT=5000
 [ -z "${METRICS_FILE_ENCRYPTION_KEY}" ] && METRICS_FILE_ENCRYPTION_KEY="mFb1lxJhgx087cXOTJHlO9D-EJ60gFBjQwTAVADxGY4="
 
 # Generate the session file.
