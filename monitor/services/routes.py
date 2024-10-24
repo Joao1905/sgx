@@ -1,7 +1,9 @@
 import os
 import ast
 from flask import request, Blueprint
-from cryptography.fernet import Fernet
+import base64
+import libnacl.utils
+import libnacl.secret
 
 METRICS_PATH = os.getenv('METRICS_PATH')
 API_KEY = os.getenv('X_API_KEY')
@@ -19,21 +21,22 @@ def get_metrics():
         if quantity <= 0:
             return {'message': 'quantity must be greater than 0'}, 400
 
-        fernet_key = os.getenv('METRICS_FILE_ENCRYPTION_KEY')
-        if not fernet_key:
+        encryption_key = os.getenv('METRICS_FILE_ENCRYPTION_KEY')
+        if not encryption_key:
             return {'message': 'API configuration variable is missing'}, 500
+        encryption_key = base64.b64decode(encryption_key)
 
         if not os.path.exists(METRICS_PATH):
             return {'metrics': []}, 204
 
         metrics = []
         file = open(METRICS_PATH)
-        fernet = Fernet(fernet_key)
+        box = libnacl.secret.SecretBox(encryption_key)
         for line in reversed(file.readlines()):
             if len(metrics) == quantity:
                 break
 
-            message = fernet.decrypt(ast.literal_eval(line)).decode()
+            message = box.decrypt(ast.literal_eval(line)).decode()
             as_dict = ast.literal_eval(message.rstrip())
             metrics.append(as_dict)
         

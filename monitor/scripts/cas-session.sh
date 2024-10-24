@@ -22,7 +22,8 @@ export MRENCLAVE=$(SCONE_HASH=1 python3)
 [ -z "${METRICS_PATH}" ] && METRICS_PATH=/metrics/metrics.txt
 [ -z "${X_API_KEY}" ] && X_API_KEY=defaultkey
 [ -z "${MONITOR_API_LOCAL_PORT}" ] && MONITOR_API_LOCAL_PORT=5000
-[ -z "${METRICS_FILE_ENCRYPTION_KEY}" ] && METRICS_FILE_ENCRYPTION_KEY="mFb1lxJhgx087cXOTJHlO9D-EJ60gFBjQwTAVADxGY4="
+[ -z "${METRICS_FILE_ENCRYPTION_KEY}" ] && METRICS_FILE_ENCRYPTION_KEY="nnsFUd/soz9LZey+F5xqgSOYxtG50FZc+UVK4kcUV/A="
+[ -z "${METRICS_FILE_ENCRYPTION_NONCE}" ] && METRICS_FILE_ENCRYPTION_NONCE="Q7BpLG560OCg7vDILopOTQCVC0x2f1X0"
 
 # Generate the session file.
 envsubst < "$SCRIPT_DIR/cas-template.yml" > "$CAS_DIR/cas-session.yml"

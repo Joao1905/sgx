@@ -1,18 +1,10 @@
 FROM registry.scontain.com/sconecuratedimages/apps:python-3.7.3-alpine3.10-scone5.9.0
 
-COPY requirements.txt /sgx/monitor/requirements.txt
-
 RUN apk update
 RUN apk add curl
-RUN apk add --no-cache gcc python3-dev musl-dev linux-headers libffi-dev openssl-dev pkgconfig
+RUN apk add --no-cache libsodium-dev
 
-ENV CRYPTOGRAPHY_DONT_BUILD_RUST=1
-
-RUN apk add py3-pip
-RUN pip3 install --upgrade pip
-
-RUN pip3 install -r /sgx/monitor/requirements.txt --break-system-packages
-
+COPY artifacts/venv /venv
 COPY artifacts/encrypted /sgx/monitor
 COPY artifacts/fspf/fspf.pb /fspf/fspf.pb
 

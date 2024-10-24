@@ -1,9 +1,13 @@
 # sgx
-> To setup and run the agent and the api processes, use the following commands from within the monitor directory
+> To setup and run the monitor
 ```
-source ./env.sh
-./agent.sh
+sudo ./monitor/scripts/certificates.sh
+sudo ./monitor/scripts/main.sh
+```
 
-source ./env.sh
-./api.sh
+> To setup and run the manager
+```
+sudo ./manager/scripts/certificates.sh
+sudo cp ./monitor/certificate/monitor-api-cert.pem ./manager/certificate/
+sudo docker-compose up
 ```
