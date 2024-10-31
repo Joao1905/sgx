@@ -4,7 +4,7 @@ version: "0.3.11"
 services:
   - name: monitor_service
     image_name: python_monitor
-    command: python3 /sgx/monitor/workers/agent.py
+    command: /venv/bin/python3 /sgx/monitor/workers/agent.py
     mrenclaves: [$MRENCLAVE]
     fspf_path: /fspf/fspf.pb
     fspf_key: $FSPF_KEY
