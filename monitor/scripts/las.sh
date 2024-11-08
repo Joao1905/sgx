@@ -24,8 +24,7 @@ fi
     --name scone-las \
     $MOUNT_SGXDEVICE \
     -e "SCONE_MODE=$SCONE_MODE" \
+    -v "/var/run/aesmd:/var/run/aesmd" \
     -p 18766:18766 \
-    --network host \
     --privileged \
     "registry.scontain.com/sconecuratedimages/las:scone5.9.0" > /dev/null
-    #"registry.scontain.com:5050/sconecuratedimages/kubernetes:las" > /dev/null

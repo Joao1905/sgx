@@ -29,7 +29,7 @@ fi
 CROSSCOMPILER_SCONE_IMAGE=registry.scontain.com/sconecuratedimages/crosscompilers
 PYTHON_DEFAULT_IMAGE=python:3.7.3
 PYTHON_SCONE_IMAGE=registry.scontain.com/sconecuratedimages/apps:python-3.7.3-alpine3.10-scone5.9.0
-LAS_SCONE_IMAGE=registry.scontain.com:5050/sconecuratedimages/kubernetes:las
+LAS_SCONE_IMAGE=registry.scontain.com/sconecuratedimages/las:scone5.9.0
 
 CAS_MRENCLAVE="be64837f9ff7dac7adf504c943a7f105a3ee33eccb2b19145a1084888d0e045a"
 CAS_ADDRESS=scone-cas.cf
@@ -107,6 +107,7 @@ export SCONE_FSPF_TAG=$(cat "$HOST_FSPF_DIR/keytag.out" | awk '{print $9}')
 
 
 # Create symmetric encryption key for the metrics file
+## Maybe use seal and unseal from native SGX
 METRICS_FILE_ENCRYPTION_KEY=$(python3 -c 'import base64; import libnacl.utils; key = libnacl.utils.salsa_key(); print(base64.b64encode(key).decode())')
 METRICS_FILE_ENCRYPTION_NONCE=$(python3 -c 'import libnacl.utils; import base64; nonce = libnacl.utils.rand_nonce(); print(base64.b64encode(nonce).decode())')
 
@@ -138,34 +139,21 @@ CAS_CONFIG_ID=$(cat "$HOST_CAS_SESSION_DIR/cas-config-id.out")
 
 
 # Run LAS if not running
-#[ ! "$(docker ps -a | grep scone-las)" ] && docker run -it --rm \
-#    --name scone-las \
-#    $MOUNT_SGXDEVICE \
-#    -e "SCONE_MODE=$SCONE_MODE" \
-#    -p 18766:18766 \
-#    --network host \
-#    --detach \
-#    $LAS_SCONE_IMAGE > /dev/null
+[ ! "$(docker ps -a | grep scone-las)" ] && docker run -it --rm \
+    --name scone-las \
+    $MOUNT_SGXDEVICE \
+    -e "SCONE_MODE=$SCONE_MODE" \
+    -v "/var:/var" \
+    -p 18766:18766 \
+    --network host \
+    --detach \
+    $LAS_SCONE_IMAGE > /dev/null
 
 
 
 # Build and run monitor agent
 docker build "$PROJECT_ROOT_DIR" \
     -t "scone-python-monitor"
-
-docker run -it --rm \
-    --name "scone-python-monitor-agent" \
-    $MOUNT_SGXDEVICE \
-    -e "SCONE_MODE=$SCONE_MODE" \
-    -e "SCONE_LAS_ADDR=$LAS_ADDRESS" \
-    -e "SCONE_CAS_ADDR=$CAS_ADDRESS" \
-    -e "SCONE_CONFIG_ID=$CAS_CONFIG_ID/monitor_service" \
-    --pid host \
-    -v /proc/meminfo:/host/proc/meminfo:ro \
-    -v /proc/stat:/host/proc/stat:ro \
-    -v "$HOST_METRICS_DIR:/metrics" \
-    scone-python-monitor \
-    /venv/bin/python3 /sgx/monitor/workers/agent.py
 
 
 # Run without CAS and LAS
@@ -177,8 +165,6 @@ docker run -it --rm \
 #    -e "SCONE_FSPF=/fspf/fspf.pb" \
 #    -e "METRICS_FILE_ENCRYPTION_KEY=$METRICS_FILE_ENCRYPTION_KEY" \
 #    -e "METRICS_FILE_ENCRYPTION_NONCE=$METRICS_FILE_ENCRYPTION_NONCE" \
-#    -e SCONE_HASH=1 \
-#    --pid host \
 #    -v /proc/meminfo:/host/proc/meminfo:ro \
 #    -v /proc/stat:/host/proc/stat:ro \
 #    -v "$HOST_METRICS_DIR:/metrics" \
