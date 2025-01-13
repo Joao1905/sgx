@@ -114,40 +114,40 @@ METRICS_FILE_ENCRYPTION_NONCE=$(python3 -c 'import libnacl.utils; import base64;
 
 
 # CAS session generation
-openssl req -newkey rsa:4096 -days 365 -nodes -x509 \
-    -out "$HOST_CAS_SESSION_DIR/cas-cert.pem" \
-    -keyout "$HOST_CAS_SESSION_DIR/cas-key.pem" \
-    -config "$HOST_SCRIPTS_DIR/cas-cert.conf" \
-    -extensions v3_req
-
-docker run -it --rm \
-    $MOUNT_SGXDEVICE -e "SCONE_MODE=$SCONE_MODE" \
-    --env-file $PROJECT_ROOT_DIR/.env \
-    -e "METRICS_FILE_ENCRYPTION_KEY=$METRICS_FILE_ENCRYPTION_KEY" \
-    -e "METRICS_FILE_ENCRYPTION_NONCE=$METRICS_FILE_ENCRYPTION_NONCE" \
-    -e "FSPF_KEY=$SCONE_FSPF_KEY" \
-    -e "FSPF_TAG=$SCONE_FSPF_TAG" \
-    -e "CAS_ADDR=$CAS_ADDRESS" \
-    -e "CAS_MRENCLAVE=$CAS_MRENCLAVE" \
-    -v "$HOST_CAS_SESSION_DIR:/cas" \
-    -v "$HOST_SCRIPTS_DIR:/scripts" \
-    $PYTHON_SCONE_IMAGE \
-    "/scripts/cas-session.sh"
-
-CAS_CONFIG_ID=$(cat "$HOST_CAS_SESSION_DIR/cas-config-id.out")
+#openssl req -newkey rsa:4096 -days 365 -nodes -x509 \
+#    -out "$HOST_CAS_SESSION_DIR/cas-cert.pem" \
+#    -keyout "$HOST_CAS_SESSION_DIR/cas-key.pem" \
+#    -config "$HOST_SCRIPTS_DIR/cas-cert.conf" \
+#    -extensions v3_req
+#
+#docker run -it --rm \
+#    $MOUNT_SGXDEVICE -e "SCONE_MODE=$SCONE_MODE" \
+#    --env-file $PROJECT_ROOT_DIR/.env \
+#    -e "METRICS_FILE_ENCRYPTION_KEY=$METRICS_FILE_ENCRYPTION_KEY" \
+#    -e "METRICS_FILE_ENCRYPTION_NONCE=$METRICS_FILE_ENCRYPTION_NONCE" \
+#    -e "FSPF_KEY=$SCONE_FSPF_KEY" \
+#    -e "FSPF_TAG=$SCONE_FSPF_TAG" \
+#    -e "CAS_ADDR=$CAS_ADDRESS" \
+#    -e "CAS_MRENCLAVE=$CAS_MRENCLAVE" \
+#    -v "$HOST_CAS_SESSION_DIR:/cas" \
+#    -v "$HOST_SCRIPTS_DIR:/scripts" \
+#    $PYTHON_SCONE_IMAGE \
+#    "/scripts/cas-session.sh"
+#
+#CAS_CONFIG_ID=$(cat "$HOST_CAS_SESSION_DIR/cas-config-id.out")
 
 
 
 # Run LAS if not running
-[ ! "$(docker ps -a | grep scone-las)" ] && docker run -it --rm \
-    --name scone-las \
-    $MOUNT_SGXDEVICE \
-    -e "SCONE_MODE=$SCONE_MODE" \
-    -v "/var:/var" \
-    -p 18766:18766 \
-    --network host \
-    --detach \
-    $LAS_SCONE_IMAGE > /dev/null
+#[ ! "$(docker ps -a | grep scone-las)" ] && docker run -it --rm \
+#    --name scone-las \
+#    $MOUNT_SGXDEVICE \
+#    -e "SCONE_MODE=$SCONE_MODE" \
+#    -v "/var:/var" \
+#    -p 18766:18766 \
+#    --network host \
+#    --detach \
+#    $LAS_SCONE_IMAGE > /dev/null
 
 
 
@@ -157,30 +157,30 @@ docker build "$PROJECT_ROOT_DIR" \
 
 
 # Run without CAS and LAS
-#docker run -it --rm \
-#    $MOUNT_SGXDEVICE -e "SCONE_MODE=$SCONE_MODE" \
-#    --env-file $PROJECT_ROOT_DIR/.env \
-#    -e "SCONE_FSPF_KEY=$SCONE_FSPF_KEY" \
-#    -e "SCONE_FSPF_TAG=$SCONE_FSPF_TAG" \
-#    -e "SCONE_FSPF=/fspf/fspf.pb" \
-#    -e "METRICS_FILE_ENCRYPTION_KEY=$METRICS_FILE_ENCRYPTION_KEY" \
-#    -e "METRICS_FILE_ENCRYPTION_NONCE=$METRICS_FILE_ENCRYPTION_NONCE" \
-#    -v /proc/meminfo:/host/proc/meminfo:ro \
-#    -v /proc/stat:/host/proc/stat:ro \
-#    -v "$HOST_METRICS_DIR:/metrics" \
-#    scone-python-monitor \
-#    /venv/bin/python3 /sgx/monitor/workers/agent.py
-#
-#
-#docker run -it --rm \
-#    $MOUNT_SGXDEVICE -e "SCONE_MODE=$SCONE_MODE" \
-#    --env-file $PROJECT_ROOT_DIR/.env \
-#    -e "SCONE_FSPF_KEY=$SCONE_FSPF_KEY" \
-#    -e "SCONE_FSPF_TAG=$SCONE_FSPF_TAG" \
-#    -e "SCONE_FSPF=/fspf/fspf.pb" \
-#    -e "METRICS_FILE_ENCRYPTION_KEY=$METRICS_FILE_ENCRYPTION_KEY" \
-#    -e "METRICS_FILE_ENCRYPTION_NONCE=$METRICS_FILE_ENCRYPTION_NONCE" \
-#    -v "$HOST_METRICS_DIR:/metrics" \
-#    -p 8000:5000 \
-#    scone-python-monitor \
-#    /venv/bin/python3 /sgx/monitor/workers/api.py
+docker run -it -d --rm \
+    $MOUNT_SGXDEVICE -e "SCONE_MODE=$SCONE_MODE" \
+    --env-file $PROJECT_ROOT_DIR/.env \
+    -e "SCONE_FSPF_KEY=$SCONE_FSPF_KEY" \
+    -e "SCONE_FSPF_TAG=$SCONE_FSPF_TAG" \
+    -e "SCONE_FSPF=/fspf/fspf.pb" \
+    -e "METRICS_FILE_ENCRYPTION_KEY=$METRICS_FILE_ENCRYPTION_KEY" \
+    -e "METRICS_FILE_ENCRYPTION_NONCE=$METRICS_FILE_ENCRYPTION_NONCE" \
+    -v /proc/meminfo:/host/proc/meminfo:ro \
+    -v /proc/stat:/host/proc/stat:ro \
+    -v "$HOST_METRICS_DIR:/metrics" \
+    scone-python-monitor \
+    /venv/bin/python3 /sgx/monitor/workers/agent.py
+
+
+docker run -it --rm \
+    $MOUNT_SGXDEVICE -e "SCONE_MODE=$SCONE_MODE" \
+    --env-file $PROJECT_ROOT_DIR/.env \
+    -e "SCONE_FSPF_KEY=$SCONE_FSPF_KEY" \
+    -e "SCONE_FSPF_TAG=$SCONE_FSPF_TAG" \
+    -e "SCONE_FSPF=/fspf/fspf.pb" \
+    -e "METRICS_FILE_ENCRYPTION_KEY=$METRICS_FILE_ENCRYPTION_KEY" \
+    -e "METRICS_FILE_ENCRYPTION_NONCE=$METRICS_FILE_ENCRYPTION_NONCE" \
+    -v "$HOST_METRICS_DIR:/metrics" \
+    -p 8000:5000 \
+    scone-python-monitor \
+    /venv/bin/python3 /sgx/monitor/workers/api.py

@@ -9,6 +9,7 @@ sys.path.append(os.path.join(executing_dir, '..'))
 
 from models.metric import Metric
 from errors.errors import InsufficientDelay
+from utils.utils import exec_time
 
 class Agent:
     def __init__(self, agent_id, encryption_key, encryption_nonce, monitor_delay_secs = 10, metrics_file_path = False):
@@ -38,6 +39,7 @@ class Agent:
             self.__collect_and_persist_data()
 
 
+    @exec_time
     def __collect_and_persist_data(self):
         self.__update_cpu_info()
         cpu_usage_percent = self.__calculate_cpu_usage_pct()
@@ -49,6 +51,7 @@ class Agent:
             metrics_file.write(str(token)+ '\n')
 
 
+    @exec_time
     def __get_memory_info(self):
         meminfo = {}
         
@@ -64,6 +67,7 @@ class Agent:
         return total_memory - available_memory
     
 
+    @exec_time
     def __update_cpu_info(self):
         with open('/host/proc/stat', 'r') as f:
             cpu_times = f.readline().strip().split()
@@ -79,6 +83,7 @@ class Agent:
         self.__cpu_info["end_idle"] = idle_time
     
 
+    @exec_time
     def __calculate_cpu_usage_pct(self):
         total_delta = self.__cpu_info["end_total"] - self.__cpu_info["initial_total"]
         idle_delta = self.__cpu_info["end_idle"] - self.__cpu_info["initial_idle"]
