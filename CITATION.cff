@@ -1,0 +1,43 @@
+cff-version: 1.2.0
+title: >-
+  Monitoramento Seguro de Métricas de Nível de Serviço em
+  Nuvem
+message: >-
+  If you use this software, please cite it using the
+  metadata from this file.
+type: software
+authors:
+  - given-names: João Pedro
+    family-names: Curvelo
+    email: joao.pedro1905@gmail.com
+    affiliation: >-
+      Programa de Pós-Graduação em Informática -
+      Universidade Federal do Paraná   (UFPR)
+  - given-names: Carlos Alberto
+    family-names: Maziero
+    email: maziero@inf.ufpr.br
+    affiliation: >-
+      Programa de Pós-Graduação em Informática -
+      Universidade Federal do Paraná   (UFPR)
+repository-code: 'https://github.com/Joao1905/sgx'
+abstract: >-
+  Cloud computing is widely adopted by companies due to the
+  scalability, high availability, and flexibility it offers,
+  but cost management and data security are notable
+  concerns. Service Level Agreements (SLAs) combine the
+  topics of cost management and data confidentiality.
+  However, monitoring the level of service offered is a task
+  performed by the cloud provider itself, and the customer
+  has no guarantees regarding the integrity of the collected
+  data. This work proposes a cloud monitoring system for
+  quality of service metrics that ensures the collected data
+  has not been tampered with during monitoring. For this
+  purpose, a threat model is proposed, as well as a
+  monitoring architecture that relies on a hardware-based
+  trusted execution environment. A proof-of-concept
+  prototype of such architecture was built, to assess its
+  viability for ensuring confidential SLA monitoring in the
+  cloud. The results of the current study show that, despite
+  the overhead imposed by the trusted environment on system
+  performance, it is still viable in what was proposed.
+license: MIT
